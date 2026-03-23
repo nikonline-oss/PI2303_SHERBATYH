@@ -5,4 +5,4 @@
 Данный репозиторий создан для сдачи лаб
 
 ### Моя фотография
-![Моё фото](https://example.com/myphoto.jpg)
+![Моё фото]("C:\Users\Admin\Pictures\Screenshots\Снимок экрана 2025-08-19 110254.png")
