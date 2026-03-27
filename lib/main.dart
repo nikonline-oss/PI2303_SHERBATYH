@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'classes/machine.dart';
+import 'classes/Coffies.dart'; // импортируем enum для работы со значениями
 
 void main() => runApp(const MyApp());
 
@@ -28,14 +29,37 @@ class CoffeeMachineScreen extends StatefulWidget {
 
 class _CoffeeMachineScreenState extends State<CoffeeMachineScreen> {
   final Machine _machine = Machine();
+  TypeCoffies _selectedCoffee = TypeCoffies.espresso; // текущий выбранный тип
+
+  @override
+  void initState() {
+    super.initState();
+    // Синхронизируем начальное состояние с машиной
+    _machine.typeCoffee = _selectedCoffee.index;
+  }
 
   void _makeCoffee() {
+    // Устанавливаем выбранный тип перед приготовлением
+    _machine.typeCoffee = _selectedCoffee.index;
+
     bool success = _machine.makingCoffee();
     setState(() {});
+
+    String message;
+    Color backgroundColor;
+
+    if (success) {
+      message = '${_machine.typeCoffee} готов! С Вас ${_machine.currentPrice} руб.';
+      backgroundColor = Colors.green;
+    } else {
+      message = 'Недостаточно ресурсов для ${_machine.typeCoffee}';
+      backgroundColor = Colors.red;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? 'Эспрессо готов! С Вас 50 руб.' : 'Недостаточно ресурсов'),
-        backgroundColor: success ? Colors.green : Colors.red,
+        content: Text(message),
+        backgroundColor: backgroundColor,
       ),
     );
   }
@@ -63,6 +87,7 @@ class _CoffeeMachineScreenState extends State<CoffeeMachineScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Карточка с ресурсами
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -79,16 +104,77 @@ class _CoffeeMachineScreenState extends State<CoffeeMachineScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Выбор типа кофе
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Выберите кофе:',
+                  style: TextStyle(fontSize: 16),
+                ),
+                DropdownButton<TypeCoffies>(
+                  value: _selectedCoffee,
+                  items: _machine.coffeeTypes.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type.name),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedCoffee = newValue;
+                        // Сразу обновляем тип в машине
+                        _machine.typeCoffee = newValue.index;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Информация о цене выбранного кофе
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.brown.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Стоимость:',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    '${_machine.currentPrice} руб.',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.brown,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 30),
+
+            // Кнопка приготовления
             ElevatedButton.icon(
               onPressed: _makeCoffee,
               icon: const Icon(Icons.coffee),
-              label: const Text('Приготовить эспрессо'),
+              label: Text('Приготовить ${_selectedCoffee.name}'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
             ),
             const SizedBox(height: 20),
+
+            // Кнопка пополнения
             OutlinedButton.icon(
               onPressed: _refill,
               icon: const Icon(Icons.refresh),

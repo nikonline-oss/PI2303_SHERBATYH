@@ -1,51 +1,67 @@
+import 'package:coffee_machine/interfaces/ICoffee.dart';
+
+import 'Coffies.dart';
+import 'Resources.dart';
+
 
 class Machine {
-  int _coffeeBeans;
-  int _milk;
-  int _water;
-  int _cash;
+  final Resources _resources = Resources();
 
-  Machine({
-    int coffeeBeans = 500,
-    int milk = 500,
-    int water = 1000,
-    int cash = 0,
-  })  : _coffeeBeans = coffeeBeans,
-        _milk = milk,
-        _water = water,
-        _cash = cash;
+  TypeCoffies _coffies = TypeCoffies.espresso;
 
-  int get coffeeBeans => _coffeeBeans;
-  int get milk => _milk;
-  int get water => _water;
-  int get cash => _cash;
+  int get coffeeBeans => _resources.coffeeBeans;
+  int get milk => _resources.milk;
+  int get water => _resources.water;
+  int get cash =>  _resources.cash;
 
-  set coffeeBeans(int value) => _coffeeBeans = value;
-  set milk(int value) => _milk = value;
-  set water(int value) => _water = value;
-  set cash(int value) => _cash = value;
+  
+  String get typeCoffee => _coffies.name;
 
-  bool isAvailable() {
-    return _coffeeBeans >= 50 && _water >= 100;
+  set typeCoffee(int value) {
+    if(value == TypeCoffies.espresso.index){
+      _coffies = TypeCoffies.espresso;
+    }
+    else if(value == TypeCoffies.kaputhino.index){
+      _coffies = TypeCoffies.kaputhino;
+    }
+    else {
+      _coffies = TypeCoffies.latte;
+    }}
+
+  int get currentPrice => _coffies.getCoffee().cash();
+  List<TypeCoffies> get coffeeTypes => TypeCoffies.values;
+
+  set coffeeBeans(int value) => _resources.coffeeBeans = value;
+  set milk(int value) => _resources.milk = value;
+  set water(int value) => _resources.water = value;
+  set cash(int value) => _resources.cash = value;
+
+  bool isAvailableResources() {
+    ICoffee coffee = _coffies.getCoffee();
+    return _resources.coffeeBeans >= coffee.coffeeBeans() && _resources.milk >= coffee.milk() && _resources.water >= coffee.water();
   }
 
   void _subtractResources() {
-    _coffeeBeans -= 50;
-    _water -= 100;
+    ICoffee coffee = _coffies.getCoffee();
+    _resources.coffeeBeans -= coffee.coffeeBeans();
+    _resources.milk -= coffee.milk();
+    _resources.water -= coffee.water();
   }
 
   bool makingCoffee() {
-    if (isAvailable()) {
+    ICoffee coffee = _coffies.getCoffee();
+    if (isAvailableResources()) {
       _subtractResources();
-      _cash += 50;
+      _resources.cash += coffee.cash();
       return true;
     }
     return false;
   }
 
   void refill() {
-    _coffeeBeans = 500;
-    _milk = 500;
-    _water = 1000;
+    _resources.refill();
   }
 }
+
+
+
