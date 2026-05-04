@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'classes/machine.dart';  // ваш обновлённый Machine
+import 'classes/machine.dart';
 import 'classes/Coffies.dart';
 
 void main() => runApp(const MyApp());

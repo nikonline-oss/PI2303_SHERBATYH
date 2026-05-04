@@ -33,6 +33,7 @@ class Machine extends ChangeNotifier {
     } else {
       _coffies = TypeCoffies.latte;
     }
+    notifyListeners();
   }
 
   set status(int value) {
@@ -113,5 +114,6 @@ class Machine extends ChangeNotifier {
 
   void refill() {
     _resources.refill();
+    notifyListeners();
   }
 }
